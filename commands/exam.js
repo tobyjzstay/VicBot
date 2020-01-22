@@ -1,45 +1,4 @@
 const index = require('../index.js');
-<<<<<<< HEAD
-var MAX_EMBED = 2000; // maximum characters allowed per embedded message
-module.exports = {
-	name: 'exam',
-	args: false,
-	log: false,
-	usage: '`!exam | <course> [course ...]`',
-	description: 'Displays examination information for the course specified.',
-	async execute(message, args) {
-		if (args.length == 0) {
-			const channelName = message.channel.name;
-			const exam = index.parseExam(channelName);
-			if (exam) {
-				const examDataOutput = index.formatExams(message, [exam], true); // get the formatted data
-				if (examDataOutput.length > 0) {
-					const embeddedMessage = index.examDataEmbed(examDataOutput);
-					message.reply(embeddedMessage);
-				}
-			}
-			else
-				message.reply(
-					`invalid channel. Is <#${message.channel.id}> a course channel?`
-				);
-		} else {
-			const exams = [args.length];
-			for (let i = 0; i < args.length; i++) {
-				exams[i] = args[i];
-			}
-			const examData = index.formatExams(message, exams, true); // get the formatted data
-			if (examData.length > MAX_EMBED)
-				message.reply(
-					"too many arguments to process. Try reducing the amount of courses."
-				);
-			else {
-				// generate the embedded message
-				const embeddedMessage = index.examDataEmbed(examData);
-				message.reply(embeddedMessage);
-			}
-		}
-	}
-=======
 const MAX_EMBED = 2000; // maximum characters allowed per embedded message
 module.exports = {
   name: 'exam',
@@ -73,5 +32,4 @@ module.exports = {
       }
     }
   }
->>>>>>> bb21602ab51687f1ffcc46097b2734d9620c79a0
 };
