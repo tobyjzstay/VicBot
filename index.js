@@ -666,6 +666,7 @@ function getChannel(exam) {
  * @return {number}
  */
 function parseDuration(duration) {
+  if (duration == undefined) return "(TBA)";
   return duration;
 }
 
@@ -675,6 +676,7 @@ function parseDuration(duration) {
  * @return {string}
  */
 function parseDate(date) {
+  if (date == undefined) return "(TBA)";
   date = convertToDate(date);
   let day = date.getDate();
   if (day.toString().length == 1) day = "0" + day;
@@ -701,6 +703,7 @@ function convertToDate(date) {
  * @return {string}
  */
 function parseStart(start) {
+  if (start == undefined) return "(TBA)";
   const hour = Math.floor(start * 24);
   const minute = Math.floor(((start * 24) % 1) * 60);
   let meridiem = "AM";
@@ -714,6 +717,7 @@ function parseStart(start) {
  * @return {string}
  */
 function parseRooms(rooms) {
+  if (rooms == undefined) return "(TBA)";
   return rooms;
 }
 
