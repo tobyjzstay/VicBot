@@ -9,7 +9,7 @@ module.exports = {
   async execute(message, args) {
     if (args.length == 0) {
       const channelName = message.channel.name;
-      const exam = index.parseExam(channelName);
+      const exam = index.parseExam(message, channelName);
       if (!exam) return message.reply("Looks like this isn't a course channel, try specifying a course or execute this command in a course channel!");
       const examData = index.formatExams(message, [exam], true); // get the formatted data
       const embeddedMessage = index.examDataEmbed(examData);
@@ -25,7 +25,7 @@ module.exports = {
         message.reply(
           "too many arguments to process. Try reducing the amount of courses."
         );
-      else {
+      else if (examData.length > 0) {
         // generate the embedded message
         const embeddedMessage = index.examDataEmbed(examData);
         message.reply(embeddedMessage);

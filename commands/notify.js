@@ -11,7 +11,7 @@ module.exports = {
     if (message.guild) {
       if (args.length == 0) {
         const channelName = message.channel.name;
-        const exam = index.parseExam(channelName);
+        const exam = index.parseExam(message, channelName);
         if (exam) index.notifyExams(message, [exam], true);
         else
           message.reply(

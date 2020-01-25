@@ -10,21 +10,28 @@ module.exports = {
   async execute(message) {
     // If the message is in a server
     if (message.guild) {
-      if (message.channel.type != "text") {
-        // direct message command
-        message.reply(
-          "You need to be in the ECS Discord server to use this command. https://discord.gg/x4S3hYP"
-        );
-        return;
-      }
       // find the exam courses of the user by checking their roles
-      const exams = new Array();
+      var exams = new Array();
       message.member.roles.forEach(function(value) {
-        const exam = parseRole(value.name);
-        if (exam) exams.push(exam);
+        var exam = index.parseExam(message, value.name);
+        if (exam instanceof Array) {
+          for (let i = 0; i < exam.length; i++) {
+            if (exam[i] != undefined) exams.push(exam[i]);
+          }
+        }
+        else if (exam != undefined) exams.push(exam);
       });
+      exams.sort(function(a, b) { // sort by alphabetical exam course
+        if(a < b) { return -1; }
+        if(a > b) { return 1; }
+        return 0;
+      })
       const examData = index.formatExams(message, exams, false); // get the formatted data
-      if (examData.length > MAX_EMBED)
+      if (examData.length > MAX_EMBED && message.member.hasPermission("ADMINISTRATOR"))
+        message.reply(
+          "too many arguments to process. It looks like you are an admin with course aliases. Try adding individual course roles instead."
+        );
+      else if (examData.length > MAX_EMBED)
         message.reply(
           "too many arguments to process. Try reducing the amount of course roles you have."
         );
@@ -45,15 +52,3 @@ module.exports = {
       );
   }
 };
-
-/**
- * Checks if the input is a valid role.
- * @param {string}
- * @return {any}
- */
-function parseRole(role) {
-  if (/^[a-zA-Z]{4}-[0-9]{3}/.test(role)) {
-    return role.slice(0, 4).toUpperCase() + role.slice(5, 8);
-  }
-  else return undefined;
-}

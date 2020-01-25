@@ -573,7 +573,7 @@ exports.processData = function() {
     while (true) {
       const examCell = worksheet["A" + y];
       const examValue = examCell ? examCell.v : undefined;
-      const exam = module.exports.parseExam(examValue);
+      const exam = module.exports.parseExam(null, examValue);
       if (exam != undefined) {
         const durationValue = getValue(worksheet, "B" + y);
         const dateValue = getValue(worksheet, "C" + y);
@@ -615,7 +615,7 @@ exports.formatExams = function(message, exams, displayErrors) {
   let examDataOutput = "";
   checkExamUpdates(); // check to see if exam data is outdated
   for (let i = 0; i < exams.length; i++) {
-    const exam = module.exports.parseExam(exams[i].toUpperCase());
+    const exam = module.exports.parseExam(message, exams[i].toUpperCase());
     if (exam != undefined) {
       const datum = module.exports.examData[exam];
       if (datum != undefined) {
@@ -641,15 +641,50 @@ exports.formatExams = function(message, exams, displayErrors) {
  * @param {string}
  * @return {any}
  */
-exports.parseExam = function(exam) {
-  if (/^[a-zA-Z]{4}[0-9]{3}/.test(exam)) {
-    return exam.slice(0, 7).toUpperCase();
+exports.parseExam = function(message, input) {
+  if (/^[a-zA-Z]{4}[0-9]{3}/.test(input)) { // course without dash (e.g. comp102)
+    return input.slice(0, 7).toUpperCase();
   }
-  else if (/^[a-zA-Z]{4}-[0-9]{3}/.test(exam)) {
-    return exam.slice(0, 4).toUpperCase() + exam.slice(5, 8);
+  else if (/^[a-zA-Z]{4}-[0-9]{3}/.test(input)) { // course with dash (e.g. comp-102)
+    return input.slice(0, 4).toUpperCase() + input.slice(5, 8);
+  }
+  else if (/^[1-4]00-level/.test(input)) { // aliases (e.g. 100-level)
+    const channels = [];
+    client.guilds.forEach(function(guild) {
+      guild.roles.forEach(function(role) {
+        if (role.name == input) {
+          message.guild.channels.forEach(channel => {
+              if(channel.permissionsFor(message.author).has('VIEW_CHANNEL')) {
+                var exam = parseExamNode(channel.name);
+                if (exam != undefined) {
+                  channels.push(exam);
+                }
+              }
+          });
+        }
+      });
+    });
+    return channels;
   }
   else return undefined;
 };
+
+/**
+ * Checks if the input is a valid exam for a node of parseExam.
+ * @param {string}
+ * @return {any}
+ */
+function parseExamNode(input) {
+  if (/^[a-zA-Z]{4}[0-9]{3}/.test(input)) { // course without dash (e.g. comp102)
+    return input.slice(0, 7).toUpperCase();
+  }
+  else if (/^[a-zA-Z]{4}-[0-9]{3}/.test(input)) { // course with dash (e.g. comp-102)
+    return input.slice(0, 4).toUpperCase() + input.slice(5, 8);
+  }
+  else return undefined;
+};
+
+
 
 /**
  * Returns the channel name of the exam.
@@ -731,7 +766,7 @@ function parseRooms(rooms) {
 exports.notifyExams = function(message, exams, displayErrors) {
   let notified = 0;
   for (let i = 0; i < exams.length; i++) {
-    const exam = module.exports.parseExam(exams[i].toUpperCase());
+    const exam = module.exports.parseExam(message, exams[i].toUpperCase());
     if (exam != undefined) {
       // valid exam
       const examChannel = getChannel(exam);
